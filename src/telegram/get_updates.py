@@ -4,61 +4,54 @@ import os
 
 import httpx
 from rich import print
-from pydantic import BaseModel, ConfigDict, Field
 
 
-class FromWho(BaseModel):
-    id: int
-    is_bot: bool
-    first_name: str
-    last_name: str | None = None
-    username: str
+from src.models.update_models import TelegramUpdatePing
 
 
-class TelegramChat(BaseModel):
-    id: int
-    title: str
-    type: str
-    all_members_are_administrators: bool
+def set_webhook():
+
+    domain = (
+        "https://df5d-2402-4000-2200-f045-ca71-8f70-c463-d08b.ngrok-free.app/updates"
+    )
+
+    params = {"url": domain}
+    res = httpx.get(
+        f"https://api.telegram.org/bot{os.getenv('TELBOTKEY')}/setWebhook",
+        params=params,
+    )
+    print(res.text)
 
 
-class Message(BaseModel):
-    message_id: int
-    from_: FromWho = Field(alias="from")
-    chat: TelegramChat
-    date: int
-    text: str
+def delete_webhook():
 
-
-class TelegramUpdateResult(BaseModel):
-    update_id: int
-    message: Message
-
-
-class APIResponse(BaseModel):
-    ok: bool
-    result: list[TelegramUpdateResult]
+    domain = "ep_2iNzEveW0WCQrZDE4ITl7Fw64Ne"
+    res = httpx.get(
+        f"https://api.telegram.org/bot{os.getenv('TELBOTKEY')}/deleteWebhook"
+    )
+    print(res.text)
 
 
 def get_updates():
 
-    res = httpx.get(
-        f"https://api.telegram.org/bot{os.getenv("TELBOTKEY")}/getUpdates")
+    res = httpx.get(f"https://api.telegram.org/bot{os.getenv('TELBOTKEY')}/getUpdates")
     print(res.text)
 
 
-def send_message():
+def send_message(update: TelegramUpdatePing, response: str):
     chat_id = -865047911
     message = "Hello @KnotAsaniczka"
-    base_url = f"https://api.telegram.org/bot{os.getenv("TELBOTKEY")}/sendMessage"
+    base_url = f"https://api.telegram.org/bot{os.getenv('TELBOTKEY')}/sendMessage"
 
-    params = {"chat_id": chat_id, "text": message,
-              "ReplyParameters": {"message_id": 4, "chat_id": chat_id,}}
-
+    params = {
+        "chat_id": update.message.chat.id,
+        "text": f"@{update.message.from_.username} {response}",
+        "reply_to_message_id": update.message.message_id,
+    }
     res = httpx.post(base_url, params=params)
 
     print(res.text)
 
 
 if __name__ == "__main__":
-    send_message()
+    set_webhook()

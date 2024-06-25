@@ -11,83 +11,20 @@ import httpx
 from wrapworks import cwdtoenv
 from dotenv import load_dotenv
 from rich import print
-from pydantic import (
-    BaseModel,
-    Field,
-    ConfigDict,
-    field_validator,
-    AliasPath,
-    AliasChoices,
-    model_validator,
-)
+
 
 cwdtoenv()
 load_dotenv()
 
-LLM_COST_PER_TOKEN = {
-    "gpt-4o": {"input": 0.000005, "output": 0.000015},
-    "gpt-3.5-turbo": {"input": 0.0000005, "output": 0.0000015},
-}
-
-LLM_COST_PER_TOKEN = {
-    "gpt-4o": {"input": 0.000005, "output": 0.000015},
-    "gpt-3.5-turbo": {"input": 0.0000005, "output": 0.0000015},
-}
-
-
-class ValidLLMModels(Enum):
-    OPENAI_GPT4o = "gpt-4o"
-    OPENAI_GPT35_TURBO = "gpt-3.5-turbo"
-
-
-class LLMRoles(Enum):
-    SYSTEM = "system"
-    USER = "user"
-    AI = "assistant"
-
-
-class LLMMessage(BaseModel):
-    """Model that stores the rendered template"""
-
-    model_config = ConfigDict(use_enum_values=True, validate_default=True)
-
-    role: LLMRoles
-    content: str
-
-
-class LLMMessageLog(BaseModel):
-    """Model that stores the rendered messages"""
-
-    model_config = ConfigDict(use_enum_values=True, validate_default=True)
-
-    messages: list[LLMMessage] = []
-
-
-class AIResponse(BaseModel):
-    text: str = Field(
-        validation_alias=AliasChoices(
-            AliasPath("choices", 0, "message", "content"),
-        )
-    )
-    input_tokens: int = Field(
-        validation_alias=AliasChoices(
-            AliasPath("usage", "prompt_tokens"),
-        )
-    )
-    output_tokens: int = Field(
-        validation_alias=AliasChoices(
-            AliasPath("usage", "completion_tokens"),
-        )
-    )
-    cost: float | None = None
-
-    def calculate_cost(self, model: str, cpt_table: dict):
-        """Calculates the usage cost"""
-
-        current_model = cpt_table[model]
-        input_cost = current_model["input"] * self.input_tokens
-        output_cost = current_model["output"] * self.output_tokens
-        self.cost = input_cost + output_cost
+from src.models.gen_ai_models import (
+    ValidLLMModels,
+    LLM_COST_PER_TOKEN,
+    LLMMessage,
+    LLMMessageLog,
+    AIResponse,
+    LLMRoles,
+)
+from src.models.update_models import TelegramUpdatePing
 
 
 def invoke_openai(model: ValidLLMModels | str, messages: LLMMessageLog) -> AIResponse:
@@ -104,7 +41,7 @@ def invoke_openai(model: ValidLLMModels | str, messages: LLMMessageLog) -> AIRes
     }
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+        "Authorization": f"Bearer {os.getenv('AZ_OPENAI_API_KEY')}",
     }
 
     response = httpx.post(url, json=payload, headers=headers, timeout=120)
@@ -131,6 +68,22 @@ def handler_generate_response(
     response.calculate_cost(model.value, LLM_COST_PER_TOKEN)
 
     return response
+
+
+def entry_generate_response_from_user_message(update: TelegramUpdatePing) -> str:
+
+    messages = LLMMessageLog(
+        messages=[
+            LLMMessage(
+                role=LLMRoles.SYSTEM,
+                content="Your name is QuickLingoBot. You are a english langauge teacher and a helper for native persian speaker who wish to learn English. You'll be talking with them on a text chat. Reply to them and be helpful. Focus only on english and not anything else. If the user asks questions unrelated to english learning, say you prefer to help them with english. Be friendly, but assertive.",
+            ),
+            LLMMessage(role=LLMRoles.USER, content=update.message.text),
+        ]
+    )
+
+    response = handler_generate_response(messages, ValidLLMModels.OPENAI_GPT35_TURBO)
+    return response.text
 
 
 if __name__ == "__main__":
