@@ -5,8 +5,7 @@ import httpx
 
 def set_webhook():
 
-    domain = "https://romantic-lobster-genuine.ngrok-free.app"
-    url = domain + "/updates"
+    url = os.getenv("WEBHOOK_DOMAIN") + "/updates"
 
     params = {"url": url}
     res = httpx.get(
