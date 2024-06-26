@@ -1,19 +1,21 @@
 """Main ingestion API"""
 
+# pylint:disable=wrong-import-position
+
 from typing import Any
 
 from fastapi import FastAPI
 import uvicorn
+from rich import print
 from wrapworks import cwdtoenv
 from dotenv import load_dotenv
-from rich import print
 
 cwdtoenv()
 load_dotenv()
 
 from src.genai.generate_message import entry_generate_response_from_user_message
 from src.telegram.send_message import send_message
-
+from src.celery.main_queue import worker_handle_update
 from src.models.update_models import TelegramUpdatePing, ChatType
 
 
@@ -30,16 +32,7 @@ def listen_for_updates(updates: dict):
         print(f"{type(e).__name__}: {e}")
         return
 
-    print(updates)
-    if updates.message.chat.type == ChatType.SUPERGROUP:
-        if "quicklingo" not in updates.message.text.lower():
-            return
-        response = entry_generate_response_from_user_message(updates)
-        send_message(updates, response)
-        return
-
-    response = entry_generate_response_from_user_message(updates)
-    send_message(updates, response)
+    _ = worker_handle_update.delay(updates)
     return
 
 

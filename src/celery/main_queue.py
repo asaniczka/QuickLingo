@@ -7,8 +7,13 @@ Celery workers
 import os
 
 from celery import Celery
+from wrapworks import cwdtoenv
+from dotenv import load_dotenv
 
-from src.core.message_handler import entry_generate_response_from_user_message
+cwdtoenv()
+load_dotenv()
+
+from src.core.message_handler import entry_process_message
 from src.models.update_models import TelegramUpdatePing
 
 
@@ -30,5 +35,5 @@ celery_master.config_from_object(
 def worker_handle_update(self, updates: TelegramUpdatePing):
     """"""
 
-    result = entry_generate_response_from_user_message(updates)
+    result = entry_process_message(updates)
     return result

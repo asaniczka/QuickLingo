@@ -19,14 +19,13 @@ from src.telegram.send_message import send_message
 from src.models.update_models import TelegramUpdatePing, ChatType
 
 
-def process_message(updates: TelegramUpdatePing) -> str:
+def entry_process_message(updates: TelegramUpdatePing) -> str:
     """"""
 
-    print(updates)
-    if updates.message.chat.type == ChatType.SUPERGROUP:
-        if "quicklingo" not in updates.message.text.lower():
+    if updates.message.chat.type in {ChatType.SUPERGROUP, ChatType.GROUP}:
+        print(type(updates.message.chat.type))
+        if "@quicklingo" not in updates.message.text.lower():
             return
-
     response = entry_generate_response_from_user_message(updates)
     send_message(updates, response)
     return response

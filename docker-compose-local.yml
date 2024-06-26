@@ -37,7 +37,7 @@ services:
   nginx:
     build: ./nginx
     ports:
-      - 81:80
+      - 9090:80
     depends_on:
       - app
       - dashboard
