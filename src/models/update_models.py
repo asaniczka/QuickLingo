@@ -1,4 +1,12 @@
-from pydantic import BaseModel, ConfigDict, Field
+from enum import Enum
+
+from pydantic import BaseModel, ConfigDict, Field, AliasChoices, AliasPath
+
+
+class ChatType(Enum):
+    GROUP = "group"
+    SUPERGROUP = "supergroup"
+    PRIVATE = "private"
 
 
 class FromWho(BaseModel):
@@ -11,9 +19,11 @@ class FromWho(BaseModel):
 
 class TelegramChat(BaseModel):
     id: int
-    title: str
-    type: str
-    all_members_are_administrators: bool
+    title: str = Field(
+        validation_alias=AliasChoices(AliasPath("title"), AliasPath("username"))
+    )
+    type: ChatType
+    all_members_are_administrators: bool = False
 
 
 class Message(BaseModel):

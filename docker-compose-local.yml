@@ -1,0 +1,43 @@
+services:
+  app:
+    build: .
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    command: uvicorn src.fastapp.main_app:app --host=0.0.0.0 --port=8080
+    depends_on:
+      - redis
+
+  worker:
+    platform: linux/amd64
+    build: .
+    command: celery -A src.celery.main_queue.celery_master worker --loglevel=info --autoscale=20,1
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - app
+      - redis
+
+  redis:
+    image: redis:7
+
+  dashboard:
+    platform: linux/amd64
+    build: .
+    command: celery --broker=redis://redis:6379/0 flower --port=5555
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - app
+      - redis
+      - worker
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 81:80
+    depends_on:
+      - app
+      - dashboard

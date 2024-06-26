@@ -1,6 +1,8 @@
-"""Main ingestion API"""
+"""
+Main handler of messages
+"""
 
-from typing import Any
+# pylint:disable=wrong-import-position
 
 from fastapi import FastAPI
 import uvicorn
@@ -17,31 +19,14 @@ from src.telegram.send_message import send_message
 from src.models.update_models import TelegramUpdatePing, ChatType
 
 
-app = FastAPI()
-
-
-@app.post("/updates")
-def listen_for_updates(updates: dict):
-
-    try:
-        updates: TelegramUpdatePing = TelegramUpdatePing(**updates)
-    except Exception as e:
-        print(f"Couldn't parse what telegram sent:\n{updates}")
-        print(f"{type(e).__name__}: {e}")
-        return
+def process_message(updates: TelegramUpdatePing) -> str:
+    """"""
 
     print(updates)
     if updates.message.chat.type == ChatType.SUPERGROUP:
         if "quicklingo" not in updates.message.text.lower():
             return
-        response = entry_generate_response_from_user_message(updates)
-        send_message(updates, response)
-        return
 
     response = entry_generate_response_from_user_message(updates)
     send_message(updates, response)
-    return
-
-
-if __name__ == "__main__":
-    uvicorn.run(app=app, port=9090)
+    return response
