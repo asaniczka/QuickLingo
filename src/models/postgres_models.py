@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class User(BaseModel):
+class TelegramUser(BaseModel):
     user_id: int
     first_name: str | None = None
     last_name: str | None = None

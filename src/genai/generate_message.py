@@ -24,7 +24,7 @@ from src.models.gen_ai_models import (
     AIResponse,
     LLMRoles,
 )
-from src.models.update_models import TelegramUpdatePing
+from src.models.telegram_update_models import TelegramUpdatePing
 
 
 def invoke_openai(model: ValidLLMModels | str, messages: LLMMessageLog) -> AIResponse:

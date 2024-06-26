@@ -1,14 +1,14 @@
 services:
-  postgres:
-    image: postgres:latest
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - 7777:5432
-    volumes:
-      - ./postgres/postgres_data:/var/lib/postgresql/data
-      - ./postgres/sql/stage1Schema.sql:/docker-entrypoint-initdb.d/init.sql
+  # postgres:
+  #   image: postgres:latest
+  #   environment:
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #   ports:
+  #     - 7777:5432
+  #   volumes:
+  #     - ./postgres/postgres_data:/var/lib/postgresql/data
+  #     - ./postgres/sql/stage1Schema.sql:/docker-entrypoint-initdb.d/init.sql
 
   pgadmin:
     image: dpage/pgadmin4

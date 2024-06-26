@@ -16,7 +16,7 @@ load_dotenv()
 from src.genai.generate_message import entry_generate_response_from_user_message
 from src.telegram.send_message import send_message
 from src.celery.main_queue import worker_handle_update
-from src.models.update_models import TelegramUpdatePing, ChatType
+from src.models.telegram_update_models import TelegramUpdatePing, ChatType
 
 
 app = FastAPI()

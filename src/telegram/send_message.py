@@ -4,9 +4,14 @@ import os
 
 import httpx
 from rich import print
+from dotenv import load_dotenv
+from wrapworks import cwdtoenv
+
+load_dotenv()
+cwdtoenv()
 
 
-from src.models.update_models import TelegramUpdatePing
+from src.models.telegram_update_models import TelegramUpdatePing
 
 
 def get_updates():
@@ -21,15 +26,20 @@ def send_message(update: TelegramUpdatePing, response: str):
     base_url = f"https://api.telegram.org/bot{os.getenv('TELBOTKEY')}/sendMessage"
 
     params = {
-        "chat_id": update.message.chat.id,
-        "text": response,
-        "reply_to_message_id": update.message.message_id,
+        "chat_id": chat_id,
+        "text": message,
     }
+    # params = {
+    #     "chat_id": update.message.chat.id,
+    #     "text": response,
+    #     "reply_to_message_id": update.message.message_id,
+    # }
     res = httpx.post(base_url, params=params)
 
-    print(res.text)
     print("Message sent")
+
+    return TelegramUpdatePing(**res.json())
 
 
 if __name__ == "__main__":
-    pass
+    send_message(1, 1)

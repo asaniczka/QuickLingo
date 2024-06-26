@@ -9,7 +9,7 @@ class ChatType(Enum):
     PRIVATE = "private"
 
 
-class FromWho(BaseModel):
+class TelegramUser(BaseModel):
     id: int
     is_bot: bool
     first_name: str
@@ -28,12 +28,14 @@ class TelegramChat(BaseModel):
 
 class Message(BaseModel):
     message_id: int
-    from_: FromWho = Field(alias="from")
+    from_: TelegramUser = Field(validation_alias=AliasPath("from"))
     chat: TelegramChat
     date: int
     text: str
 
 
 class TelegramUpdatePing(BaseModel):
-    update_id: int
-    message: Message
+    update_id: int | None = None
+    message: Message = Field(
+        validation_alias=AliasChoices(AliasPath("message"), AliasPath("result"))
+    )

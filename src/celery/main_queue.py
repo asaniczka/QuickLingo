@@ -14,7 +14,7 @@ cwdtoenv()
 load_dotenv()
 
 from src.core.message_handler import entry_process_message
-from src.models.update_models import TelegramUpdatePing
+from src.models.telegram_update_models import TelegramUpdatePing
 
 
 celery_master = Celery(

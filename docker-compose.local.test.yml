@@ -34,6 +34,15 @@ services:
       - redis
       - worker
 
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    volumes:
+      - ./postgres/temp:/var/lib/postgresql/data
+      - ./postgres/sql/stage1Schema.sql:/docker-entrypoint-initdb.d/init.sql
+
   nginx:
     build: ./nginx
     ports:
@@ -41,27 +50,4 @@ services:
     depends_on:
       - app
       - dashboard
-
-  postgres:
-    image: postgres:latest
-    environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
-    ports:
-      - 7778:5432
-    volumes:
-      - ./postgres/temp:/var/lib/postgresql/data
-      - ./postgres/sql/stage1Schema.sql:/docker-entrypoint-initdb.d/init.sql
-
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=postgres@domain.com
-      - PGADMIN_DEFAULT_PASSWORD=postgres
-    ports:
-      - 5051:80
-    volumes:
-      - ./postgres/pgadmin:/var/lib/pgadmin
-    user: "${UID}:${GID}"
-    logging:
-      driver: none
+      - postgres
