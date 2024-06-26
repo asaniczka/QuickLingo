@@ -1,5 +1,7 @@
 """Main ingestion API"""
 
+from typing import Any
+
 from fastapi import FastAPI
 import uvicorn
 from wrapworks import cwdtoenv
@@ -10,7 +12,7 @@ cwdtoenv()
 load_dotenv()
 
 from src.genai.generate_message import entry_generate_response_from_user_message
-from src.telegram.get_updates import send_message
+from src.telegram.send_message import send_message
 
 from src.models.update_models import TelegramUpdatePing
 
@@ -19,7 +21,15 @@ app = FastAPI()
 
 
 @app.post("/updates")
-def listen_for_updates(updates: TelegramUpdatePing):
+def listen_for_updates(updates: dict):
+
+    try:
+        updates = TelegramUpdatePing(**updates)
+    except Exception as e:
+        print(f"Couldn't parse what telegram sent:\n{updates}")
+        print(f"{type(e).__name__}: {e}")
+        return
+
     print(updates)
     response = entry_generate_response_from_user_message(updates)
     send_message(updates, response)

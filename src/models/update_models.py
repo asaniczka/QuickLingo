@@ -6,7 +6,7 @@ class FromWho(BaseModel):
     is_bot: bool
     first_name: str
     last_name: str | None = None
-    username: str
+    username: str | None = None
 
 
 class TelegramChat(BaseModel):
@@ -27,26 +27,3 @@ class Message(BaseModel):
 class TelegramUpdatePing(BaseModel):
     update_id: int
     message: Message
-
-
-{
-    "update_id": 606293319,
-    "message": {
-        "message_id": 10,
-        "from": {
-            "id": 1892096500,
-            "is_bot": False,
-            "first_name": "Asaniczka",
-            "last_name": ":)",
-            "username": "KnotAsaniczka",
-        },
-        "chat": {
-            "id": -865047911,
-            "title": "MyBotRun Notifications",
-            "type": "group",
-            "all_members_are_administrators": True,
-        },
-        "date": 1719347412,
-        "text": "Noo",
-    },
-}
