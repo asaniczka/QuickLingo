@@ -2,6 +2,8 @@
 Issue requests to LLM using dynamic prompts
 """
 
+# pylint:disable=wrong-import-position
+
 from enum import Enum
 import os
 from datetime import datetime
@@ -16,6 +18,7 @@ from rich import print
 cwdtoenv()
 load_dotenv()
 
+from src.postgres.select_functions import get_last_n_messages
 from src.models.gen_ai_models import (
     ValidLLMModels,
     LLM_COST_PER_TOKEN,
@@ -70,24 +73,34 @@ def handler_generate_response(
     return response
 
 
-def entry_generate_response_from_user_message(update: TelegramUpdatePing) -> str:
+def format_telegram_chat_history(update: TelegramUpdatePing)->list[LLMMessage]:
+    """"""
+
+    messages = get_last_n_messages(update.message.chat.id)
+
+    return [LLMMessage(role=x.role,content=x.message) for x in messages]
+
+def entry_generate_response_from_user_message(update: TelegramUpdatePing) -> AIResponse:
+    """"""
 
     messages = LLMMessageLog(
         messages=[
             LLMMessage(
                 role=LLMRoles.SYSTEM,
-                content="Your name is QuickLingoBot. You are a english langauge teacher and a helper for native persian speaker who wish to learn English. You'll be talking with them on a text chat. Reply to them and be helpful. Focus on helping the user with thier questions. Help them in english and in persian. Be friendly, but assertive. You are an english teacher, so don't talk about anything that you wouldn't talk about in a casual classroom. In your response, make sure to include a persian translation of the english version as well. That way, users who don't english well can still learn something.",
+                content="Your name is QuickLingoBot. You are a english langauge teacher and a helper for native persian speaker who wish to learn English. You'll be talking with them on a text chat. Focus on helping the user with thier questions. Help them in english and in persian. Be friendly, but assertive. You are an english teacher, so don't talk about anything that you wouldn't talk about in a casual classroom. In your response, make sure to include a persian translation of the english version as well. That way, users who don't english well can still learn something. Use markdown formatting.",
             ),
             LLMMessage(
                 role=LLMRoles.SYSTEM,
-                content=f"You can refer to the user with @{update.message.from_.username or update.message.from_.first_name or "friend"}. But do no greet the user. This is not your first interaction with them",
-            ),
-            LLMMessage(role=LLMRoles.USER, content=update.message.text),
+                content=f"You can refer to the user with @{update.message.from_.username or update.message.from_.first_name or "friend"}",
+            )
         ]
     )
 
+    messages.messages.extend(format_telegram_chat_history(update))
+    messages.messages.append(LLMMessage(role=LLMRoles.USER, content=update.message.text))
+
     response = handler_generate_response(messages, ValidLLMModels.OPENAI_GPT35_TURBO)
-    return response.text
+    return response
 
 
 if __name__ == "__main__":

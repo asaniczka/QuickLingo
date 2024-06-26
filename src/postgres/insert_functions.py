@@ -15,6 +15,7 @@ def insert_user(user: TelegramUser):
     statement = """
     INSERT INTO USERS (USER_ID,FIRST_NAME,LAST_NAME,USERNAME,IS_BOT)
     VALUES (%s,%s,%s,%s,%s)
+    ON CONFLICT (USER_ID) DO NOTHING;
     """
 
     with POSTGRES_POOL.connection() as conn:
@@ -40,6 +41,7 @@ def insert_chat(chat: TelegramChat):
     statement = """
     INSERT INTO CHATS (CHAT_ID,TITLE,TYPE)
     VALUES (%s,%s,%s)
+    ON CONFLICT (CHAT_ID) DO NOTHING;
     """
 
     with POSTGRES_POOL.connection() as conn:

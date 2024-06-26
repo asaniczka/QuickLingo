@@ -21,19 +21,20 @@ def get_updates():
 
 
 def send_message(update: TelegramUpdatePing, response: str):
-    chat_id = -865047911
-    message = "Hello @KnotAsaniczka"
     base_url = f"https://api.telegram.org/bot{os.getenv('TELBOTKEY')}/sendMessage"
 
-    params = {
-        "chat_id": chat_id,
-        "text": message,
-    }
+    # # TESTING
+    # chat_id = -865047911
+    # message = "Hello @KnotAsaniczka"
     # params = {
-    #     "chat_id": update.message.chat.id,
-    #     "text": response,
-    #     "reply_to_message_id": update.message.message_id,
+    #     "chat_id": chat_id,
+    #     "text": message,
     # }
+    params = {
+        "chat_id": update.message.chat.id,
+        "text": response,
+        "reply_to_message_id": update.message.message_id,
+    }
     res = httpx.post(base_url, params=params)
 
     print("Message sent")
