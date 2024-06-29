@@ -36,10 +36,14 @@ def send_message(update: TelegramUpdatePing, response: str):
         "reply_to_message_id": update.message.message_id,
     }
     res = httpx.post(base_url, params=params)
-
     print("Message sent")
 
-    return TelegramUpdatePing(**res.json())
+    try:
+        formatted_response = TelegramUpdatePing(**res.json())
+    except Exception as e:
+        print(f"Exception in parsing my reply: {type(e)}: {e}")
+
+    return formatted_response or None
 
 
 if __name__ == "__main__":

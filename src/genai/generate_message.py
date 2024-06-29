@@ -76,7 +76,7 @@ def handler_generate_response(
 def format_telegram_chat_history(update: TelegramUpdatePing)->list[LLMMessage]:
     """"""
 
-    messages = get_last_n_messages(update.message.chat.id)
+    messages = get_last_n_messages(update.message.chat.id,n=5)
 
     return [LLMMessage(role=x.role,content=x.message) for x in messages]
 
