@@ -14,7 +14,11 @@ cwdtoenv()
 load_dotenv()
 
 from src.core.message_handler import entry_process_message
-from src.models.telegram_update_models import TelegramUpdatePing
+from src.telegram.send_message import send_welcome_message
+from src.models.telegram_update_models import (
+    TelegramUpdatePing,
+    TelegramUpdateNewMember,
+)
 
 
 celery_master = Celery(
@@ -32,8 +36,14 @@ celery_master.config_from_object(
 
 
 @celery_master.task(bind=True, name="handle_update")
-def worker_handle_update(self, updates: TelegramUpdatePing):
+def worker_handle_update(self, update: TelegramUpdatePing | TelegramUpdateNewMember):
     """"""
 
-    result = entry_process_message(updates)
-    return result
+    if isinstance(update, TelegramUpdatePing):
+        result = entry_process_message(update)
+        return result
+    if isinstance(update, TelegramUpdateNewMember):
+        result = send_welcome_message(update)
+        return result
+    else:
+        raise AttributeError(f"Unknown update type: {type(update).__name__}: {update}")

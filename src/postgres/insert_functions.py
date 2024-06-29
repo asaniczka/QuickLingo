@@ -56,7 +56,12 @@ def insert_chat(chat: TelegramChat):
 
 
 def insert_message(
-    message: Message, role: LLMRoles, cost=0, input_token=0, output_tokens=0
+    message: Message,
+    role: LLMRoles,
+    cost=0,
+    input_token=0,
+    output_tokens=0,
+    was_tagged: bool = False,
 ):
     """"""
 
@@ -69,8 +74,9 @@ def insert_message(
         MESSAGE,
         COST,
         INPUT_TOKENS,
-        OUTPUT_TOKENS)
-    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+        OUTPUT_TOKENS,
+        WAS_TAGGED)
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
     """
 
     with POSTGRES_POOL.connection() as conn:
@@ -87,6 +93,7 @@ def insert_message(
                         cost,
                         input_token,
                         output_tokens,
+                        was_tagged,
                     ),
                 )
             except UniqueViolation:
