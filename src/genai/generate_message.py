@@ -42,6 +42,7 @@ def invoke_openai(model: ValidLLMModels | str, messages: LLMMessageLog) -> AIRes
     payload = {
         "model": model,
         "messages": [x.model_dump() for x in messages.messages],
+        "max_tokens": 1500,
     }
     headers = {
         "Content-Type": "application/json",
