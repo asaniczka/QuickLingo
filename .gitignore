@@ -4,3 +4,4 @@ __pycache__
 pgadmin
 temp
 postgres_data
+logs

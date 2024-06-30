@@ -8,6 +8,7 @@ from enum import Enum
 import os
 from datetime import datetime
 import json
+import re
 
 import httpx
 from wrapworks import cwdtoenv
@@ -73,12 +74,22 @@ def handler_generate_response(
     return response
 
 
-def format_telegram_chat_history(update: TelegramUpdatePing)->list[LLMMessage]:
+def remove_handles_from_message(message: str) -> str:
     """"""
 
-    messages = get_last_n_messages(update.message.chat.id,n=5)
+    pattern = re.compile(r"(@\w+)")
 
-    return [LLMMessage(role=x.role,content=x.message) for x in messages]
+    message = re.sub(pattern, "", message)
+    return message
+
+
+def format_telegram_chat_history(update: TelegramUpdatePing) -> list[LLMMessage]:
+    """"""
+
+    messages = get_last_n_messages(update.message.chat.id, n=5)
+
+    return [LLMMessage(role=x.role, content=x.message) for x in messages]
+
 
 def entry_generate_response_from_user_message(update: TelegramUpdatePing) -> AIResponse:
     """"""
@@ -87,17 +98,18 @@ def entry_generate_response_from_user_message(update: TelegramUpdatePing) -> AIR
         messages=[
             LLMMessage(
                 role=LLMRoles.SYSTEM,
-                content="Your name is QuickLingoBot. You are a english langauge teacher and a helper for native persian speaker who wish to learn English. You'll be talking with them on a text chat. Focus on helping the user with thier questions. Help them in english and in persian. Be friendly, but assertive. You are an english teacher, so don't talk about anything that you wouldn't talk about in a casual classroom. In your response, make sure to include a persian translation of the english version as well. That way, users who don't english well can still learn something. Use markdown formatting. Use emojis in your message",
+                content=f"""Your name is QuickLingoBot. You are a english langauge teacher and a helper for native persian speaker who wish to learn English. You'll be talking with them on a text chat. Focus on helping the user with thier questions. Help them in english and in persian. Be friendly, but assertive. You are an english teacher, so don't talk about anything that you wouldn't talk about in a casual classroom. In your response, make sure to include a persian translation of the english version as well. That way, users who don't english well can still learn something. Use markdown formatting. Use emojis in your message
+                
+                You might be in a group chat. The user who sent the last message is @{update.message.from_.username or update.message.from_.first_name or 'friend'}. Only tag this user if you want to tag them. 
+                Ignore any other users who sent previous messages that is not @{update.message.from_.username or update.message.from_.first_name or 'friend'}.""",
             ),
-            LLMMessage(
-                role=LLMRoles.SYSTEM,
-                content=f"The user who sent this message is @{update.message.from_.username or update.message.from_.first_name or "friend"}. Only tag this user if you want to tag them, ignore any other tagged users. You might be in a group chat.",
-            )
         ]
     )
 
     messages.messages.extend(format_telegram_chat_history(update))
-    messages.messages.append(LLMMessage(role=LLMRoles.USER, content=update.message.text))
+    messages.messages.append(
+        LLMMessage(role=LLMRoles.USER, content=update.message.text)
+    )
 
     response = handler_generate_response(messages, ValidLLMModels.OPENAI_GPT35_TURBO)
     return response
