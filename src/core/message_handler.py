@@ -53,7 +53,7 @@ def entry_process_message(update: TelegramUpdatePing) -> str:
         return "Chat Not Authorized"
 
     if update.message.chat.type in {ChatType.SUPERGROUP, ChatType.GROUP}:
-        if "#noreply" not in update.message.text.lower():
+        if "#noreply" in update.message.text.lower():
             record_message_in_db(update)
             return "Ignore message command found"
 
