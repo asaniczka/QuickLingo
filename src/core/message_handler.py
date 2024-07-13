@@ -46,15 +46,16 @@ def entry_process_message(update: TelegramUpdatePing) -> str:
     if not is_authorized:
         send_message(
             update,
-            "⚠️ Sorry, You need a paid subscription to Sona.EnglishClub to use QuickLingoBot 💳✨ Please contact @Sona_mhmdi",
+            """دوست عزیز، برای استفاده از چت شخصی با ربات شما نیاز به پرداخت حق عضویت دارید. برای اطلاعات بیشتر به این آیدی پیام بدین
+@NaturalEnglish_Admin""",
         )
         record_message_in_db(update)
         return "Chat Not Authorized"
 
     if update.message.chat.type in {ChatType.SUPERGROUP, ChatType.GROUP}:
-        if "@quicklingo" not in update.message.text.lower():
+        if "#noreply" not in update.message.text.lower():
             record_message_in_db(update)
-            return "Group message was not tagged"
+            return "Ignore message command found"
 
     has_usage = check_if_user_has_credits(
         update.message.chat.id, update.message.from_.id
