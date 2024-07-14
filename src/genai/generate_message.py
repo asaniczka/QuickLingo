@@ -87,7 +87,7 @@ def remove_handles_from_message(message: str) -> str:
 def format_telegram_chat_history(update: TelegramUpdatePing) -> list[LLMMessage]:
     """"""
 
-    messages = get_last_n_messages(update.message.chat.id, n=5)
+    messages = get_last_n_messages(update.message.chat.id, update.message.from_.id, n=5)
 
     return [LLMMessage(role=x.role, content=x.message) for x in messages]
 
