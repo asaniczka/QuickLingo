@@ -25,8 +25,22 @@ from src.models.telegram_update_models import (
 app = FastAPI()
 
 
+@app.get("/")
+def health_check():
+    return "I'm running smoothly"
+
+
 @app.post("/updates")
 def listen_for_updates(update: dict):
+    """
+    ### Description:
+    - Handles incoming updates from Telegram.
+    - Determines the type of update and processes it accordingly.
+
+    ### Args:
+    - `update`: Dictionary containing the update payload from Telegram.
+      - Keys may include "message", "text", "new_chat_member", etc.
+    """
 
     try:
         if "text" in update["message"]:

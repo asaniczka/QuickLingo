@@ -37,7 +37,29 @@ celery_master.config_from_object(
 
 @celery_master.task(bind=True, name="handle_update")
 def worker_handle_update(self, update: TelegramUpdatePing | TelegramUpdateNewMember):
-    """"""
+    """
+    ### Responsibility:
+        - Handle different types of Telegram updates and dispatch them to the appropriate handler functions.
+
+    ### Args:
+        - `update`: TelegramUpdatePing | TelegramUpdateNewMember
+            An object representing either a message update or a new member update.
+
+    ### Returns:
+        - `result`: AIResponse or str or None
+            Returns the result of processing the update using the appropriate handler function.
+                - For `TelegramUpdatePing`, it returns the result from `entry_process_message`.
+                - For `TelegramUpdateNewMember`, it returns the result from `send_welcome_message`.
+
+    ### Raises:
+        - `AttributeError`:
+            Raised if the provided update type is not recognized or supported.
+
+    ### How does the function work:
+        - Checks if the update is of type `TelegramUpdatePing`. If so, calls `entry_process_message` and returns the result.
+        - Checks if the update is of type `TelegramUpdateNewMember`. If so, calls `send_welcome_message` and returns the result.
+        - Raises an `AttributeError` if the update type is unrecognized.
+    """
 
     if isinstance(update, TelegramUpdatePing):
         result = entry_process_message(update)

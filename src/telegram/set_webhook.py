@@ -7,6 +7,16 @@ load_dotenv()
 
 
 def set_webhook():
+    """
+    ### Responsibility:
+        - Set the webhook for the Telegram bot to a specified URL.
+        - Print the response text from the Telegram API.
+
+    ### How does the function work:
+        - Constructs the URL for the webhook by appending "/updates" to the WEBHOOK_DOMAIN environment variable.
+        - Sends an HTTP GET request to the Telegram bot API with the constructed URL as a parameter.
+        - Prints the response text from the API call.
+    """
 
     url = os.getenv("WEBHOOK_DOMAIN") + "/updates"
 
@@ -19,8 +29,16 @@ def set_webhook():
 
 
 def delete_webhook():
+    """
+    ### Responsibility:
+        - Delete the current webhook for the Telegram bot.
+        - Print the response text from the Telegram API.
 
-    domain = "ep_2iNzEveW0WCQrZDE4ITl7Fw64Ne"
+    ### How does the function work:
+        - Sends an HTTP GET request to the Telegram bot API to delete the webhook.
+        - Prints the response text from the API call.
+    """
+
     res = httpx.get(
         f"https://api.telegram.org/bot{os.getenv('TELBOTKEY')}/deleteWebhook"
     )
