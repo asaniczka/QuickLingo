@@ -19,7 +19,8 @@ def set_webhook():
     """
 
     url = os.getenv("WEBHOOK_DOMAIN") + "/updates"
-
+    
+    print(url)
     params = {"url": url}
     res = httpx.get(
         f"https://api.telegram.org/bot{os.getenv('TELBOTKEY')}/setWebhook",
@@ -39,6 +40,7 @@ def delete_webhook():
         - Prints the response text from the API call.
     """
 
+    print(os.getenv("TELBOTKEY"))
     res = httpx.get(
         f"https://api.telegram.org/bot{os.getenv('TELBOTKEY')}/deleteWebhook"
     )

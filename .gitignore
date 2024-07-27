@@ -5,3 +5,4 @@ pgadmin
 temp
 postgres_data
 logs
+ngrok.yml
