@@ -1,4 +1,13 @@
 services:
+
+  fluentd:
+    image: fluent/fluentd:v1.12.0-debian-1.0
+    ports:
+      - 24224:24224
+    volumes:
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf
+      - ./logs:/fluentd/logs
+
   app:
     build: .
     environment:
@@ -7,6 +16,12 @@ services:
     command: uvicorn src.fastapp.main_app:app --host=0.0.0.0 --port=8080
     depends_on:
       - redis
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: app
 
   worker:
     platform: linux/amd64
@@ -18,6 +33,12 @@ services:
     depends_on:
       - app
       - redis
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: worker
 
   redis:
     image: redis:7
@@ -33,6 +54,12 @@ services:
       - app
       - redis
       - worker
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: dashboard
 
   postgres:
     image: postgres:latest
@@ -44,6 +71,13 @@ services:
     volumes:
       - ./postgres/temp:/var/lib/postgresql/data
       - ./postgres/sql/stage1Schema.sql:/docker-entrypoint-initdb.d/init.sql
+    depends_on:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: postgres
 
   nginx:
     build: ./nginx
@@ -53,6 +87,12 @@ services:
       - app
       - dashboard
       - postgres
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: nginx
 
   ngrok:
     image: ngrok/ngrok:latest
@@ -66,3 +106,10 @@ services:
       - ./ngrok.yml:/etc/ngrok.yml
     ports:
       - 4040:4040
+    depends_on:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: ngrok
