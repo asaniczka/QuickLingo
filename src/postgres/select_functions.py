@@ -144,14 +144,14 @@ def get_last_n_messages(chat_id: int, user_id: str, n=5) -> list[Message]:
     statement = """
     SELECT PG_MESSAGE_ID,MESSAGE,ROLE
     FROM messages
-    WHERE chat_id = %s and user_id = %s
+    WHERE chat_id = %s
     ORDER BY PG_MESSAGE_ID DESC
     LIMIT %s;
     """
 
     with POSTGRES_POOL.connection() as conn:
         with conn.cursor() as cur:
-            cur.execute(statement, (chat_id, user_id, n))
+            cur.execute(statement, (chat_id, n))
             data = cur.fetchall()
 
     messages = [Message(pg_message_id=x[0], message=x[1], role=x[2]) for x in data]

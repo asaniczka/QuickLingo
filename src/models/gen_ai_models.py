@@ -19,17 +19,14 @@ load_dotenv()
 
 LLM_COST_PER_TOKEN = {
     "gpt-4o": {"input": 0.000005, "output": 0.000015},
-    "gpt-3.5-turbo": {"input": 0.0000005, "output": 0.0000015},
-}
-
-LLM_COST_PER_TOKEN = {
-    "gpt-4o": {"input": 0.000005, "output": 0.000015},
+    "gpt-4o-mini": {"input": 0.000000150, "output": 0.000000600},
     "gpt-3.5-turbo": {"input": 0.0000005, "output": 0.0000015},
 }
 
 
 class ValidLLMModels(Enum):
     OPENAI_GPT4o = "gpt-4o"
+    OPENAI_GPT4o_MINI = "gpt-4o-mini"
     OPENAI_GPT35_TURBO = "gpt-3.5-turbo"
 
 

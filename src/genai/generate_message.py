@@ -168,7 +168,7 @@ def format_telegram_chat_history(update: TelegramUpdatePing) -> list[LLMMessage]
         - Returns the list of `LLMMessage` objects.
     """
 
-    messages = get_last_n_messages(update.message.chat.id, update.message.from_.id, n=5)
+    messages = get_last_n_messages(update.message.chat.id, update.message.from_.id, n=3)
 
     return [LLMMessage(role=x.role, content=x.message) for x in messages]
 
@@ -211,7 +211,7 @@ def entry_generate_response_from_user_message(update: TelegramUpdatePing) -> AIR
         LLMMessage(role=LLMRoles.USER, content=update.message.text)
     )
 
-    response = handler_generate_response(messages, ValidLLMModels.OPENAI_GPT35_TURBO)
+    response = handler_generate_response(messages, ValidLLMModels.OPENAI_GPT4o_MINI)
     return response
 
 
@@ -220,7 +220,7 @@ if __name__ == "__main__":
         messages=LLMMessageLog(
             messages=[LLMMessage(role=LLMRoles.SYSTEM, content="Say hello")]
         ),
-        model=ValidLLMModels.OPENAI_GPT35_TURBO,
+        model=ValidLLMModels.OPENAI_GPT4o_MINI,
     )
 
     print(response.model_dump_json())
